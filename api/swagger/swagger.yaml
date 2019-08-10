@@ -1,0 +1,314 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Hello World App
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /hello:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      # used as the method name of the controller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/HelloWorldResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  
+  /breed:
+    x-swagger-router-controller: breed
+    get:
+      operationId: getAll
+      description: get the breeds list
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GetBreedsListResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      operationId: save
+      description: post a new breed to the list
+      parameters:
+        - name: breedType
+          description: Breed properties
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Breed"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  
+  /breed/{breedType}:
+    x-swagger-router-controller: breed
+    get:
+      operationId: getOne
+      description: get a breed
+      parameters:
+        - name: breedType
+          type: string
+          in: path
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Breed"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put: 
+      operationId: update
+      description: update a breed
+      parameters:
+        - name: breedType
+          description: Breed type
+          type: string
+          in: path
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      operationId: delBreed
+      description: delete a breed
+      parameters:
+        - name: breedType
+          description: Breed type
+          type: string
+          in: path
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  HelloWorldResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+
+  GetBreedsListResponse:
+    required:
+      - breeds
+    properties:
+      breeds:
+        type: array
+        items:
+          $ref: "#/definitions/Breed"
+
+  Image:
+    type: object
+    properties:
+      id:
+        type: string
+      breed:
+        type: string
+      imgUrl:
+        type: string
+        format: url
+
+  Characteristics:
+    type: object
+    properties:
+      id:
+        type: string
+      breedType:
+        type: string
+      adaptability:
+        type: object
+        properties:
+          score:
+            type: integer
+          apartmentLiving:
+            type: integer
+          noviceOwner:
+            type: integer
+          sensitivity:
+            type: integer
+          beingAlone: 
+            type: integer
+          coldWeather:
+            type: integer
+          hotWeather:
+            type: integer
+      friendliness:
+        type: object
+        properties:
+          score: 
+            type: integer
+          affectionFamily:
+            type: integer
+          kidFriendly:
+            type: integer
+          dogFriendly:
+            type: integer
+          strangerFriendly:
+            type: integer
+      grooming:
+        type: object
+        properties:
+          score:
+            type: integer
+          shedding:
+            type: integer
+          drooling:
+            type: integer
+          easyGroom:
+            type: integer
+          genHealth: 
+            type: integer
+          weightGain:
+            type: integer
+          size:
+            type: integer
+      trainability:
+        type: object
+        properties:
+          score:
+            type: integer
+          easyTrain:
+            type: integer
+          intelligence:
+            type: integer
+          mouthiness:
+            type: integer
+          preyDrive:
+            type: integer
+          noisiness:
+            type: integer
+          wanderlust:
+            type: integer
+      activity:
+        type: object
+        properties:
+          score:
+            type: integer
+          energy: 
+            type: integer
+          intensity:
+            type: integer
+          exercise:
+            type: integer
+          playfulness:
+            type: integer
+
+  BreedInfo:
+    type: object
+    properties:
+      id:
+        type: string
+      breedType:
+        type: string
+      summary: 
+        type: string
+      characteristics:
+        $ref: "#/definitions/Characteristics"
+      breedGroup:
+        type: string
+      height:
+        type: string
+      weight:
+        type: string
+      lifeSpan:
+        type: string
+      breedInfo:
+        type: string
+      highlights:
+        type: array
+        items:
+          type: string
+      history:
+        type: string
+      personality:
+        type: string
+      health:
+        type: string
+        
+  Breed: 
+    type: object
+    properties:
+      breedType:
+        type: string
+      images:
+        type: array
+        items: 
+          $ref: "#/definitions/Image"
+      info:
+        $ref: "#/definitions/BreedInfo"
+
+  GeneralResponse:
+    type: object
+    properties:
+      success:
+        type: number
+        description: returns 1 if successful
+      description:
+        type: string
+        description: short comment
+    required: 
+      - success
+      - description
